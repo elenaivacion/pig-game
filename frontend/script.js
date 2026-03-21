@@ -18,11 +18,10 @@ let scores, currentScore, activePlayer, playing;
 
 // Starting conditions
 
-const init = function () {
-  scores = [0, 0];
-  currentScore = 0;
-  activePlayer = 0;
-  playing = true;
+const init = async function () {
+  const res = await fetch(`${API}/api/init`, {
+    method: "POST",
+  });
 
   current0El.textContent = 0;
   current1El.textContent = 0;
@@ -50,22 +49,29 @@ btnRoll.addEventListener("click", async function () {
   const res = await fetch(`${API}/api/roll`, {
     method: "POST",
   });
+  const game = await res.json();
 
-  return res.json();
+  diceEl.classList.remove("hidden");
+  diceEl.src = `dice-${game.dice}.png`;
+  document.getElementById(`current--${game.activePlayer}`).textContent =
+    game.currentScore;
 });
 
 btnHold.addEventListener("click", async function () {
   const res = await fetch(`${API}/api/hold`, {
     method: "POST",
   });
+  const game = await res.json();
 
-  return res.json();
+  diceEl.classList.remove("hidden");
+  diceEl.src = `dice-${game.dice}.png`;
+  score0El.textContent = game.scores[0];
+  score1El.textContent = game.scores[1];
+  document.getElementById(`current--${1 - game.activePlayer}`).textContent = 0;
+  player0El.classList.toggle("player--active");
+  player1El.classList.toggle("player--active");
 });
 
 btnNew.addEventListener("click", async function () {
-  const res = await fetch(`${API}/api/init`, {
-    method: "POST",
-  });
-
-  return res.json();
+  init();
 });

@@ -15,6 +15,7 @@ def get_status():
 
 @app.route('/api/init', methods=['POST'])
 def init_game():
+    global game
     game = {
         "scores": [0, 0],
         "currentScore": 0,
@@ -22,7 +23,7 @@ def init_game():
         "dice": None,
         "winner": None
     }    
-    return jsonify({"func": "init_game"})
+    return jsonify(**game)
 
 
 @app.route('/api/roll', methods=['POST'])
@@ -36,7 +37,7 @@ def roll_dice():
     else:
         game["currentScore"] += dice
 
-    return jsonify({"func": "roll_dice"})
+    return jsonify(**game)
 
 
 @app.route('/api/hold', methods=['POST'])
@@ -49,7 +50,7 @@ def hold_score():
     else:
         game["activePlayer"] = 1 - p
 
-    return jsonify({"func": "hold_score"})
+    return jsonify(**game)
 
 
 # ---------------------------------------------
