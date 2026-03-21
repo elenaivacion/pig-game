@@ -1,5 +1,7 @@
 "use strict";
 
+const API = "http://localhost:5000";
+
 // Selecting elements
 const player0El = document.querySelector(".player--0");
 const player1El = document.querySelector(".player--1");
@@ -44,56 +46,26 @@ const switchPlayer = function () {
 };
 
 // Rolling dice functionality
-btnRoll.addEventListener("click", function () {
-  if (playing) {
-    // 1.Generating a random dice roll
-    const dice = Math.trunc(Math.random() * 6) + 1;
+btnRoll.addEventListener("click", async function () {
+  const res = await fetch(`${API}/api/roll`, {
+    method: "POST",
+  });
 
-    // 2.Display the dice
-    diceEl.classList.remove("hidden");
-    diceEl.src = `dice-${dice}.png`;
-
-    // 3.Checked for rolled 1
-    if (dice !== 1) {
-      // Add dice to current score
-      currentScore += dice;
-      document.getElementById(`current--${activePlayer}`).textContent =
-        currentScore;
-      // current0El.textContent = currentScore;
-    } else {
-      //switch to next player
-      switchPlayer();
-    }
-  }
+  return res.json();
 });
 
-btnHold.addEventListener("click", function () {
-  if (playing) {
-    // 1.Add current score to active's player score
-    scores[activePlayer] += currentScore;
+btnHold.addEventListener("click", async function () {
+  const res = await fetch(`${API}/api/hold`, {
+    method: "POST",
+  });
 
-    //scores[1] = scores[1] + currentScore;
-    document.getElementById(`score--${activePlayer}`).textContent =
-      scores[activePlayer];
-
-    // 2.Check if player's score is >=100
-    if (scores[activePlayer] >= 20) {
-      // console.log(scores);
-      // Finish the game
-      playing = false;
-      diceEl.classList.add("hidden");
-
-      document
-        .querySelector(`.player--${activePlayer}`)
-        .classList.add("player--winner");
-      document
-        .querySelector(`.player--${activePlayer}`)
-        .classList.remove("player--active");
-    } else {
-      // Switch to next player
-      switchPlayer();
-    }
-  }
+  return res.json();
 });
 
-btnNew.addEventListener("click", init);
+btnNew.addEventListener("click", async function () {
+  const res = await fetch(`${API}/api/init`, {
+    method: "POST",
+  });
+
+  return res.json();
+});
