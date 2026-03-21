@@ -18,58 +18,74 @@ let scores, currentScore, activePlayer, playing;
 
 // Starting conditions
 
+function applyState(state) {
+  switch (state.action) {
+    case "new":
+      score0El.textContent = 0;
+      score1El.textContent = 0;
+      current0El.textContent = 0;
+      current1El.textContent = 0;
+      diceEl.classList.add("hidden");
+      player0El.classList.remove("player--winner");
+      player1El.classList.remove("player--winner");
+      player0El.classList.add("player--active");
+      player1El.classList.remove("player--active");
+      break;
+
+    case "update":
+      diceEl.classList.remove("hidden");
+      diceEl.src = `dice-${state.dice}.png`;
+      document.getElementById(`current--${state.activePlayer}`).textContent =
+        state.currentScore;
+      break;
+
+    case "switch":
+      diceEl.classList.remove("hidden");
+      diceEl.src = `dice-${state.dice}.png`;
+      score0El.textContent = state.scores[0];
+      score1El.textContent = state.scores[1];
+      document.getElementById(
+        `current--${1 - state.activePlayer}`,
+      ).textContent = 0;
+      player0El.classList.toggle("player--active");
+      player1El.classList.toggle("player--active");
+      break;
+
+    case "winner":
+      score0El.textContent = state.scores[0];
+      score1El.textContent = state.scores[1];
+      diceEl.classList.add("hidden");
+      document
+        .querySelector(`.player--${state.winner}`)
+        .classList.add("player--winner");
+      document
+        .querySelector(`.player--${state.winner}`)
+        .classList.remove("player--active");
+      break;
+  }
+}
+
 const init = async function () {
   const res = await fetch(`${API}/api/init`, {
     method: "POST",
   });
-
-  current0El.textContent = 0;
-  current1El.textContent = 0;
-  score0El.textContent = 0;
-  score1El.textContent = 0;
-
-  diceEl.classList.add("hidden");
-  player0El.classList.remove("player--winner");
-  player1El.classList.remove("player--winner");
-  player0El.classList.add("player--active");
-  player1El.classList.remove("player--active");
+  applyState(await res.json());
 };
 init();
-
-const switchPlayer = function () {
-  document.getElementById(`current--${activePlayer}`).textContent = 0;
-  currentScore = 0;
-  activePlayer = activePlayer === 0 ? 1 : 0;
-  player0El.classList.toggle("player--active");
-  player1El.classList.toggle("player--active");
-};
 
 // Rolling dice functionality
 btnRoll.addEventListener("click", async function () {
   const res = await fetch(`${API}/api/roll`, {
     method: "POST",
   });
-  const game = await res.json();
-
-  diceEl.classList.remove("hidden");
-  diceEl.src = `dice-${game.dice}.png`;
-  document.getElementById(`current--${game.activePlayer}`).textContent =
-    game.currentScore;
+  applyState(await res.json());
 });
 
 btnHold.addEventListener("click", async function () {
   const res = await fetch(`${API}/api/hold`, {
     method: "POST",
   });
-  const game = await res.json();
-
-  diceEl.classList.remove("hidden");
-  diceEl.src = `dice-${game.dice}.png`;
-  score0El.textContent = game.scores[0];
-  score1El.textContent = game.scores[1];
-  document.getElementById(`current--${1 - game.activePlayer}`).textContent = 0;
-  player0El.classList.toggle("player--active");
-  player1El.classList.toggle("player--active");
+  applyState(await res.json());
 });
 
 btnNew.addEventListener("click", async function () {
