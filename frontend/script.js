@@ -62,6 +62,13 @@ function applyState(state) {
         .querySelector(`.player--${state.winner}`)
         .classList.remove("player--active");
       break;
+
+    case "login":
+      window.location.href = "start-session.html";
+      break;
+    default:
+      window.location.href = "index.html";
+      break;
   }
 }
 
