@@ -1,0 +1,85 @@
+/* End Session button */
+.btn--end-session {
+  top: 54rem;
+  font-size: 1.4rem;
+  border: 2px solid rgba(100, 100, 100, 0.4);
+  color: #666;
+}
+
+/* End Session Dialog */
+.dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.dialog-overlay.hidden {
+  display: none;
+}
+
+.dialog {
+  background: #fff;
+  border-radius: 1rem;
+  padding: 3rem;
+  max-width: 38rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 2.4rem;
+  box-shadow: 0 3rem 6rem rgba(0, 0, 0, 0.3);
+  font-size: 1.8rem;
+}
+
+.dialog-actions {
+  display: flex;
+  gap: 1.2rem;
+  justify-content: center;
+}
+
+.dialog-actions .btn::first-letter {
+  font-size: inherit;
+  display: inline;
+  margin-right: 0;
+}
+
+.dialog-actions .btn {
+  position: static;
+  transform: none;
+  box-shadow: none;
+  border-radius: 0.5rem;
+  font-size: 1.6rem;
+  padding: 0.8rem 1.8rem;
+  text-transform: none;
+}
+
+.btn--confirm {
+  background-color: #bf2e34;
+  color: #fff;
+  border: none;
+  padding: 0.8rem 1.8rem;
+  border-radius: 0.5rem;
+  font-size: 1.6rem;
+  cursor: pointer;
+}
+
+.btn--confirm:hover {
+  background-color: #9c2229;
+}
+
+.btn--cancel {
+  background-color: #eee;
+  color: #333;
+  border: none;
+  padding: 0.8rem 1.8rem;
+  border-radius: 0.5rem;
+  font-size: 1.6rem;
+  cursor: pointer;
+}
+
+.btn--cancel:hover {
+  background-color: #ddd;
+}

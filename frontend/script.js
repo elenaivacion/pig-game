@@ -80,7 +80,10 @@ const init = async function () {
 };
 init();
 
-// Rolling dice functionality
+btnNew.addEventListener("click", async function () {
+  init();
+});
+
 btnRoll.addEventListener("click", async function () {
   const res = await fetch(`${API}/api/roll`, {
     method: "POST",
@@ -93,8 +96,4 @@ btnHold.addEventListener("click", async function () {
     method: "POST",
   });
   applyState(await res.json());
-});
-
-btnNew.addEventListener("click", async function () {
-  init();
 });

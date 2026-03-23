@@ -1,12 +1,21 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
+from flask_cors import CORS
 from flask_cors import CORS
 import game
+import os
 
-app = Flask(__name__)
+FRONTEND_DIR = os.path.join(os.path.dirname(__file__), '..', '..', 'frontend')
+
+app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path='')
 CORS(app)
 
 user_id = None
 
+
+
+@app.route('/')
+def index():
+    return send_from_directory(FRONTEND_DIR, 'index.html')
 
 @app.route('/api/status', methods=['GET'])
 def get_status():
@@ -18,6 +27,15 @@ def start_session():
     user_id = request.json.get("userId")
     if not user_id:
         return jsonify({"error": "User ID not avaiable!"}), 400
+    return jsonify({"status": "ok"}), 200
+
+@app.route('/api/end-session', methods=['POST'])
+def end_session():
+    global user_id
+    tmp_user_id = request.json.get("userId")
+    if user_id != tmp_user_id:
+        return jsonify({"error": "User ID not avaiable!"}), 400
+    user_id = None
     return jsonify({"status": "ok"}), 200
 
 @app.route('/api/init', methods=['POST'])
