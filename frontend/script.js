@@ -71,6 +71,7 @@ function applyState(state) {
     case "login":
       window.location.href = "start-session.html";
       break;
+
     default:
       window.location.href = "index.html";
       break;

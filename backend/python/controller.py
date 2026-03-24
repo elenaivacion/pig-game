@@ -73,6 +73,25 @@ def get_status():
     """    
     return jsonify({"message": "It Works!"}), 200
 
+@app.route('/api/init', methods=['POST'])
+def init_game():
+    """
+    Initialize/resets internal game logic. Verifies token and returns 'login' if invalid.
+    ---
+    parameters: []
+    responses:
+        200:
+            description: 'init' if successful, 'login' if token invalid
+    """
+    token = request.headers.get("Authorization", "").removeprefix("Bearer ").strip()
+    try:
+        game_id = auth.verify_token(token)
+    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
+        return jsonify({"action": "login"}), 200
+
+    state = game.init(game_id)
+    return jsonify(state), 200
+
 @app.route('/api/start-session', methods=['POST'])
 def start_session():
     """
