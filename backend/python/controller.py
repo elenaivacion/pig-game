@@ -117,19 +117,14 @@ def start_session():
       500:
         description: Internal Server Error.
     """    
-    data = request.get_json()
+    user_id = request.json.get("userId")
     
     # Validation logic
-    if not data or "userId" not in data:
+    if not user_id:
         return jsonify({"error": "User ID is required!"}), 400
         
-    user_id = data.get("userId")
-    
-    try:
-        token = auth.start_session(user_id)
-        return jsonify({"token": token}), 200
-    except Exception as e:
-        return jsonify({"error": "An internal error occurred"}), 500
+    token = auth.start_session(user_id)
+    return jsonify({"token": token}), 200
 
 @app.route('/api/end-session', methods=['POST'])
 @require_auth
