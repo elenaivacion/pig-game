@@ -1,43 +1,52 @@
 import random
 
 
-game = {}
+# game_id -> game session data
+games = {}
+NOT_INITIALIZED = {"scores": None, "currentScore": None, "activePlayer": None, "dice": None, "winner": None, "action": "init"}
 
-def init():
-    global game
-    game = {
+def init(game_id):
+    games[game_id] = {
         "scores": [0, 0],
         "currentScore": 0,
         "activePlayer": 0,
         "dice": None,
         "winner": None
     }    
-    return {**game, "action": "new"}
+    return {**games[game_id], "action": "new"}
 
-def roll_dice():
+def roll_dice(game_id):
+    state = games.get(game_id)
+    if state is None:
+        return NOT_INITIALIZED
+        
     dice = random.randint(1, 6)
-    game["dice"] = dice
+    state["dice"] = dice
 
     if dice == 1:
-        game["currentScore"] = 0
-        game["activePlayer"] = 1 - game["activePlayer"]
+        state["currentScore"] = 0
+        state["activePlayer"] = 1 - state["activePlayer"]
         action = "switch"
     else:
-        game["currentScore"] += dice
+        state["currentScore"] += dice
         action = "update"
 
-    return {**game, "action": action}
+    return {**state, "action": action}
 
-def hold_score():
-    p = game["activePlayer"]
-    game["scores"][p] += game["currentScore"]
-    game["currentScore"] = 0
-    if game["scores"][p] >= 100:
-        game["winner"] = p
+def hold_score(game_id):
+    state = games.get(game_id)
+    if state is None:
+        return NOT_INITIALIZED
+        
+    p = state["activePlayer"]
+    state["scores"][p] += state["currentScore"]
+    state["currentScore"] = 0
+    if state["scores"][p] >= 100:
+        state["winner"] = p
         action = "winner"
     else:
-        game["activePlayer"] = 1 - p
+        state["activePlayer"] = 1 - p
         action = "switch"
 
-    return {**game, "action": action}
+    return {**state, "action": action}
 

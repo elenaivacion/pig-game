@@ -14,7 +14,8 @@ const startSession = async function (userId) {
   });
 
   if (!res.ok) throw new Error("Login failed!");
-  localStorage.setItem("user_id", userId);
+  const data = await res.json();
+  localStorage.setItem("token", data.token);
 };
 
 btnEnterEl.addEventListener("click", async function () {

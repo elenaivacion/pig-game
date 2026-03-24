@@ -1,6 +1,11 @@
 "use strict";
 
 const API = "http://localhost:5000";
+const token = localStorage.getItem("token");
+
+const headers = {
+  Authorization: `Bearer ${token}`,
+};
 
 // Selecting elements
 const player0El = document.querySelector(".player--0");
@@ -75,7 +80,9 @@ function applyState(state) {
 const init = async function () {
   const res = await fetch(`${API}/api/init`, {
     method: "POST",
+    headers,
   });
+  if (res.status === 401) return;
   applyState(await res.json());
 };
 init();
@@ -87,13 +94,17 @@ btnNew.addEventListener("click", async function () {
 btnRoll.addEventListener("click", async function () {
   const res = await fetch(`${API}/api/roll`, {
     method: "POST",
+    headers,
   });
+  if (res.status === 401) return;
   applyState(await res.json());
 });
 
 btnHold.addEventListener("click", async function () {
   const res = await fetch(`${API}/api/hold`, {
     method: "POST",
+    headers,
   });
+  if (res.status === 401) return;
   applyState(await res.json());
 });

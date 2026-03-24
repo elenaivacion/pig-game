@@ -10,15 +10,14 @@ const btnConfirmEnd = document.getElementById("btn-confirm-end");
 const btnCancelEnd = document.getElementById("btn-cancel-end");
 
 const endSession = async function () {
-  const userId = localStorage.getItem("user_id");
+  const token = localStorage.getItem("token");
   const res = await fetch(`${API}/api/end-session`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ userId }),
+    headers: { Authorization: `Bearer ${token}` },
   });
 
   if (!res.ok) throw new Error("Login failed!");
-  localStorage.removeItem("user_id");
+  localStorage.removeItem("token");
 };
 
 btnEndSession.addEventListener("click", function () {

@@ -1,17 +1,30 @@
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
-from flask_cors import CORS
-import game
+from functools import wraps
+import game, auth
 import os
+import jwt
 
 FRONTEND_DIR = os.path.join(os.path.dirname(__file__), '..', '..', 'frontend')
 
 app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path='')
 CORS(app)
 
-user_id = None
 
-
+def require_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = request.headers.get("Authorization", "").removeprefix("Bearer ").strip()
+        if not token:
+            return jsonify({"error": "Missing auth token!"}), 401
+        try:
+            game_id = auth.verify_token(token)
+        except jwt.ExpiredSignatureError:
+            return jsonify({"error": "Expired token!"}), 401
+        except jwt.InvalidTokenError:
+            return jsonify({"error": "Invalid token!"}), 401
+        return f(game_id, *args, **kwargs)
+    return decorated
 
 @app.route('/')
 def index():
@@ -23,38 +36,38 @@ def get_status():
 
 @app.route('/api/start-session', methods=['POST'])
 def start_session():
-    global user_id
     user_id = request.json.get("userId")
     if not user_id:
         return jsonify({"error": "User ID not avaiable!"}), 400
-    return jsonify({"status": "ok"}), 200
+    token = auth.start_session(user_id)
+    return jsonify({"token": token}), 200
 
 @app.route('/api/end-session', methods=['POST'])
-def end_session():
-    global user_id
-    tmp_user_id = request.json.get("userId")
-    if user_id != tmp_user_id:
-        return jsonify({"error": "User ID not avaiable!"}), 400
-    user_id = None
+@require_auth
+def end_session(game_id):
+    auth.end_session(game_id)
     return jsonify({"status": "ok"}), 200
 
 @app.route('/api/init', methods=['POST'])
 def init_game():
-    if not user_id:
-        return jsonify({"-":"-", "action": "login"})
-    return jsonify(game.init())
+    token = request.headers.get("Authorization", "").removeprefix("Bearer ").strip()
+    try:
+        game_id = auth.verify_token(token)
+    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
+        return jsonify({"action": "login"}), 200
+
+    state = game.init(game_id)
+    return jsonify(state), 200
 
 @app.route('/api/roll', methods=['POST'])
-def roll_dice():
-    if not user_id:
-        return jsonify({"-":"-", "action": "login"})    
-    return jsonify(game.roll_dice())
+@require_auth
+def roll_dice(game_id):
+    return jsonify(game.roll_dice(game_id))
 
 @app.route('/api/hold', methods=['POST'])
-def hold_score():
-    if not user_id:
-        return jsonify({"-":"-", "action": "login"})    
-    return jsonify(game.hold_score())
+@require_auth
+def hold_score(game_id):
+    return jsonify(game.hold_score(game_id))
 
 
 # ---------------------------------------------
