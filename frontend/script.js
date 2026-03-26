@@ -83,7 +83,7 @@ const init = async function () {
     method: "POST",
     headers,
   });
-  if (res.status === 401) return;
+
   applyState(await res.json());
 };
 init();
@@ -97,7 +97,7 @@ btnRoll.addEventListener("click", async function () {
     method: "POST",
     headers,
   });
-  if (res.status === 401) return;
+
   applyState(await res.json());
 });
 
@@ -106,6 +106,6 @@ btnHold.addEventListener("click", async function () {
     method: "POST",
     headers,
   });
-  if (res.status === 401) return;
+
   applyState(await res.json());
 });

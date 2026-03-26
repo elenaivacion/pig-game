@@ -9,9 +9,11 @@ SECRET_KEY = "change-this-in-production"
 users = {}
 
 def start_session(user_id):
-    if user_id not in users:
-        users[user_id] = str(uuid.uuid4())
-
+    # check if user id is already in use
+    if user_id in users:
+        return None
+    
+    users[user_id] = str(uuid.uuid4())
     game_id = users[user_id]
 
     token = jwt.encode(
@@ -26,12 +28,29 @@ def start_session(user_id):
 
     return token
 
-def end_session(game_id):
-    for key, value in list(users.items()):
-        if value == game_id:
-            del users[key]
-            break
+def end_session(game_id, user_id=None):
+    if user_id and user_id in users:
+        if users[user_id] == game_id:
+            del users[user_id]
+            return True    
+    
+    for uid, gid in list(users.items()):
+        if gid == game_id:
+            del users[uid]
+            return True
+
+    return False
 
 def verify_token(token):
     payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
-    return payload["game_id"]
+    user_id = payload["user_id"]
+
+    # check if user_id has a registered session
+    if user_id in users:
+        return payload["game_id"]
+    else:
+        # somehow a correct token was used, but there is no session for it
+        raise jwt.InvalidTokenError 
+
+def get_payload(token):
+    return jwt.decode(token, SECRET_KEY, algorithms=["HS256"])

@@ -22,9 +22,9 @@ def require_auth(f):
         try:
             game_id = auth.verify_token(token)
         except jwt.ExpiredSignatureError:
-            return jsonify({"error": "Expired token!"}), 401
+            return jsonify({"error": "Expired token!", "action": "login"}), 401
         except jwt.InvalidTokenError:
-            return jsonify({"error": "Invalid token!"}), 401
+            return jsonify({"error": "Invalid token!", "action": "login"}), 401
         return f(game_id, *args, **kwargs)
     return decorated
 
@@ -74,7 +74,8 @@ def get_status():
     return jsonify({"message": "It Works!"}), 200
 
 @app.route('/api/init', methods=['POST'])
-def init_game():
+@require_auth
+def init_game(game_id):
     """
     Initialize/resets internal game logic. Verifies token and returns 'login' if invalid.
     ---
@@ -105,7 +106,7 @@ def start_session():
       - in: body
         name: body
         required: true
-        description: The user credentials for starting a session.
+        description: The user id (name, nickname, email, etc.) for starting a session.
         schema:
           type: object
           required:
@@ -116,25 +117,18 @@ def start_session():
               example: "player_99"
               description: Unique identifier for the player.
     responses:
-      200:
-        description: Session started successfully.
-        schema:
-          type: object
-          properties:
-            token:
-              type: string
-              example: "abc123securitytoken"
-              description: The session token to be used for authorized requests.
-      400:
-        description: Bad Request - Missing or invalid parameters.
-        schema:
-          type: object
-          properties:
-            error:
-              type: string
-              example: "User ID is required!"
-      500:
-        description: Internal Server Error.
+        200:
+            description: Session started successfully.
+        400:
+            description: Bad Request - Missing userId.
+        409:
+            description: Conflict - User ID already in use.
+            schema:
+            type: object
+            properties:
+                error:
+                type: string
+                example: "User ID already in use!"
     """    
     user_id = request.json.get("userId")
     
@@ -143,36 +137,28 @@ def start_session():
         return jsonify({"error": "User ID is required!"}), 400
         
     token = auth.start_session(user_id)
+    if token is None:
+        return jsonify({"error": "User ID already in use!"}), 409
+    
     return jsonify({"token": token}), 200
 
 @app.route('/api/end-session', methods=['POST'])
 @require_auth
 def end_session(game_id):
     """
-    Terminates the current game session.
+    Terminates the current game session and releases the User ID.
     ---
     tags:
       - Authentication
-    summary: End game session
-    description: Ends the active game session associated with the provided game ID. Requires a valid Bearer Token.
+    summary: Ends the active session
+    description: >
+      Closes the game session associated with the provided Bearer Token. 
+      This will remove the User ID from the active list, allowing it to be used again for a new login.
     security:
       - BearerAuth: []
-    parameters:
-      - in: body
-        name: body
-        required: true
-        schema:
-          type: object
-          required:
-            - game_id
-          properties:
-            game_id:
-              type: string
-              example: "game_uuid_12345"
-              description: The unique ID of the session to be closed.
     responses:
       200:
-        description: Session ended successfully.
+        description: Session ended successfully and resources were cleared.
         schema:
           type: object
           properties:
@@ -180,11 +166,29 @@ def end_session(game_id):
               type: string
               example: "ok"
       401:
-        description: Unauthorized - Invalid or missing token.
-      404:
-        description: Not Found - Game ID does not exist.
+        description: Unauthorized - The token is missing, invalid, or expired.
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: "Invalid token!"
+      500:
+        description: Internal Server Error.
     """
-    auth.end_session(game_id)
+    token = request.headers.get("Authorization", "").removeprefix("Bearer ").strip()
+
+    user_id = None
+    try:
+        # extract user_id from the token
+        payload = auth.get_payload(token)
+        user_id = payload.get("user_id")
+    except Exception as e:
+        # something went wrong
+        pass
+    
+    auth.end_session(game_id, user_id)
+
     return jsonify({"status": "ok"}), 200
 
 @app.route('/api/roll', methods=['POST'])
