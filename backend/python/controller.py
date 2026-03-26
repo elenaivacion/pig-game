@@ -130,7 +130,11 @@ def start_session():
                 type: string
                 example: "User ID already in use!"
     """    
-    user_id = request.json.get("userId")
+    data = request.get_json(silent=True)
+    if data is None:
+        return jsonify({"error": "User ID is required! (Missing JSON body)"}), 400
+    
+    user_id = data.get("userId")
     
     # Validation logic
     if not user_id:
