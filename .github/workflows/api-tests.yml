@@ -31,6 +31,6 @@ jobs:
 
       - name: Run Postman Collection
         run: |
-          newman run "tests/postman/pig_ame.postman_collection.json" \
+          newman run "tests/postman/pig_game.postman_collection.json" \
           -e "tests/postman/local_dev.postman_environment.json" \
           --reporters cli
