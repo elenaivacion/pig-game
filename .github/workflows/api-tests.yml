@@ -21,7 +21,7 @@ jobs:
       - name: Start Flask Server
         run: |
           # start server în background (&)
-          python backend/app.py &
+          python backend/python/controller.py &
 
           # wait 5sec for the server to initialize
           sleep 5
