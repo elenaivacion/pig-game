@@ -40,11 +40,9 @@ def index():
     responses:
       200:
         description: HTML page loaded successfully.
-        content:
-          text/html:
-            schema:
-              type: string
-              example: "<!DOCTYPE html><html>...</html>"
+        schema:
+          type: string
+          example: "<!DOCTYPE html>..."
       404:
         description: Frontend files not found.
     """
@@ -70,26 +68,62 @@ def get_status():
               example: "It Works!"
       503:
         description: Service Unavailable - The server is down or undergoing maintenance.
-    """    
+    """
     return jsonify({"message": "It Works!"}), 200
 
 @app.route('/api/init', methods=['POST'])
 @require_auth
 def init_game(game_id):
     """
-    Initialize/resets internal game logic. Verifies token and returns 'login' if invalid.
+    Initializes or resets the game state within an active session.
     ---
-    parameters: []
+    tags:
+      - Game Logic
+    summary: Initialize Game State
+    description: >
+      Resets all internal game variables (scores, current turn, dice) to their starting values.
+      This should be called after 'start_session' to begin a new match within the same session.
+    parameters:
+      - name: Authorization
+        in: header
+        type: string
+        required: true
+        description: 'Bearer token obtained from start_session (format: Bearer <token>)'
+      - name: game_id
+        in: path
+        type: string
+        required: true
+        description: The unique ID of the game to be initialized.
     responses:
-        200:
-            description: 'init' if successful, 'login' if token invalid
-    """
+      200:
+        description: Game state initialized successfully.
+        schema:
+          type: object
+          properties:
+            action:
+              type: string
+              example: "init"
+            state:
+              type: object
+              description: The freshly reset game state object.
+      401:
+        description: 'Unauthorized - Token is invalid or expired. Action: login'
+        schema:
+          type: object
+          properties:
+            action:
+              type: string
+              example: "login"
+            error:
+              type: string
+              example: "Invalid or expired token"
+    """    
     token = request.headers.get("Authorization", "").removeprefix("Bearer ").strip()
     try:
-        game_id = auth.verify_token(token)
+      game_id = auth.verify_token(token)
     except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
-        return jsonify({"action": "login"}), 200
-
+      return jsonify({"action": "login", "error": "Invalid or expired token"}), 401
+    
     state = game.init(game_id)
     return jsonify(state), 200
 
@@ -106,7 +140,6 @@ def start_session():
       - in: body
         name: body
         required: true
-        description: The user id (name, nickname, email, etc.) for starting a session.
         schema:
           type: object
           required:
@@ -115,21 +148,33 @@ def start_session():
             userId:
               type: string
               example: "player_99"
-              description: Unique identifier for the player.
+              description: Unique identifier for the player (name, nickname, email, etc.).
     responses:
-        200:
-            description: Session started successfully.
-        400:
-            description: Bad Request - Missing userId.
-        409:
-            description: Conflict - User ID already in use.
-            schema:
-            type: object
-            properties:
-                error:
-                type: string
-                example: "User ID already in use!"
-    """    
+      200:
+        description: Session started successfully. Returns a JWT token.
+        schema:
+          type: object
+          properties:
+            token:
+              type: string
+              example: "eyJhbGciOiJIUzI1Ni..."
+      400:
+        description: Bad Request - Missing JSON body or userId.
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: "User ID is required!"
+      409:
+        description: Conflict - User ID already in use.
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: "User ID already in use!"
+    """
     data = request.get_json(silent=True)
     if data is None:
         return jsonify({"error": "User ID is required! (Missing JSON body)"}), 400
@@ -158,8 +203,17 @@ def end_session(game_id):
     description: >
       Closes the game session associated with the provided Bearer Token. 
       This will remove the User ID from the active list, allowing it to be used again for a new login.
-    security:
-      - BearerAuth: []
+    parameters:
+      - name: Authorization
+        in: header
+        type: string
+        required: true
+        description: 'JWT token (format: "Bearer <token>")'
+      - name: game_id
+        in: path
+        type: string
+        required: true
+        description: The ID of the game session to terminate.
     responses:
       200:
         description: Session ended successfully and resources were cleared.
@@ -207,44 +261,41 @@ def roll_dice(game_id):
     description: >
       Triggers a dice roll for the active player in the specified game. 
       If the dice is 1, the turn score is reset and the turn passes to the next player.
-      Requires a valid Bearer Token.
-    security:
-      - BearerAuth: []
     parameters:
-      - in: body
-        name: body
+      - name: Authorization
+        in: header
+        type: string
         required: true
-        schema:
-          type: object
-          required:
-            - game_id
-          properties:
-            game_id:
-              type: string
-              example: "game_550e8400"
-              description: The unique ID of the ongoing game.
+        description: 'JWT token (format: "Bearer <token>")'
+      - name: game_id
+        in: path
+        type: string
+        required: true
+        description: The unique ID of the ongoing game.
     responses:
       200:
         description: Dice rolled successfully.
         schema:
           type: object
           properties:
-            dice_value:
-              type: integer
-              example: 4
-              description: The value resulted from the roll (1-6).
-            current_turn_score:
+            scores:
               type: integer
               example: 12
-              description: Total points accumulated in the current turn.
-            is_turn_over:
-              type: boolean
-              example: false
-              description: Indicates if the player rolled a 1 and lost their turn.
-            active_player:
+            currentScore:
+              type: integer
+              example: 25
+            activePlayer:
+              type: integer
+              example: 1
+            dice:
+              type: integer
+              example: 4
+            winner:
+              type: integer
+              example: 0
+            action:
               type: string
-              example: "Player 1"
-              description: The player who is currently rolling.
+              example: "update"
       401:
         description: Unauthorized - Bearer token is missing or invalid.
       404:
@@ -265,23 +316,18 @@ def hold_score(game_id):
     summary: Hold current score
     description: >
       Adds the accumulated turn score to the player's total score and switches the turn to the next player.
-      If the total score reaches 100, the player is declared the winner.
-      Requires a valid Bearer Token.
-    security:
-      - BearerAuth: []
+      If the total score reaches the target, the player is declared the winner.
     parameters:
-      - in: body
-        name: body
+      - name: Authorization
+        in: header
+        type: string
         required: true
-        schema:
-          type: object
-          required:
-            - game_id
-          properties:
-            game_id:
-              type: string
-              example: "game_550e8400"
-              description: The unique ID of the active game session.
+        description: 'JWT token (format: "Bearer <token>")'
+      - name: game_id
+        in: path
+        type: string
+        required: true
+        description: The unique ID of the active game session.
     responses:
       200:
         description: Score held successfully.
@@ -291,15 +337,12 @@ def hold_score(game_id):
             global_score:
               type: integer
               example: 45
-              description: The updated total score for the player.
             next_player:
               type: string
               example: "Player 2"
-              description: The name/ID of the player whose turn is next.
             is_winner:
               type: boolean
               example: false
-              description: Set to true if the player reached the winning threshold (e.g., 100 points).
       401:
         description: Unauthorized - Bearer token is missing or invalid.
       404:
