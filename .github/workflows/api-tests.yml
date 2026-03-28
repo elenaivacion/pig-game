@@ -1,0 +1,36 @@
+name: API Regression Tests
+on: [push, pull_request]
+
+jobs:
+  postman-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      - name: Install Backend Dependencies
+        run: |
+          pip install -r backend/requirements.txt
+
+      - name: Start Flask Server
+        run: |
+          # start server în background (&)
+          python backend/app.py &
+
+          # wait 5sec for the server to initialize
+          sleep 5
+
+      - name: Install Newman
+        run: npm install -g newman
+
+      - name: Run Postman Collection
+        run: |
+          newman run "tests/postman/pig_ame.postman_collection.json" \
+          -e "tests/postman/local_dev.postman_environment.json" \
+          --reporters cli
