@@ -1,0 +1,2841 @@
+{
+  "info": {
+    "_postman_id": "0d0ee6b8-57c4-4642-8678-1ff41b4de936",
+    "name": "Pig Game",
+    "description": "powered by Flasgger",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "13168306"
+  },
+  "item": [
+    {
+      "name": "/",
+      "item": [
+        {
+          "name": "Serves the main game interface (Frontend).",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "text/html"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                ""
+              ]
+            },
+            "description": "Returns the main index.html file that initializes the Pig Game frontend application."
+          },
+          "response": [
+            {
+              "name": "HTML page loaded successfully.",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "text/html"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    ""
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/html"
+                }
+              ],
+              "cookie": [],
+              "body": "<!DOCTYPE html><html>...</html>"
+            },
+            {
+              "name": "Frontend files not found.",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    ""
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "text",
+              "header": [],
+              "cookie": [],
+              "body": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "api",
+      "item": [
+        {
+          "name": "end-session",
+          "item": [
+            {
+              "name": "End session - Positive",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "const uniqueUser = \"player_\" + Date.now();",
+                      "",
+                      "pm.sendRequest({",
+                      "    url: pm.environment.get(\"baseUrl\") + '/api/start-session',",
+                      "    method: 'POST',",
+                      "    header: { 'Content-Type': 'application/json' },",
+                      "    body: {",
+                      "        mode: 'raw',",
+                      "        raw: JSON.stringify({ userId: uniqueUser })",
+                      "    }",
+                      "}, function (err, res) {",
+                      "    if (res.code === 200) {",
+                      "        const token = res.json().token;",
+                      "        // save token for next api calls",
+                      "        pm.collectionVariables.set(\"active_session_token\", token);",
+                      "        console.log(\"Pre-request Auth: New session created for \" + uniqueUser);",
+                      "    }",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "// 1. Validating the HTTP Response",
+                      "pm.test(\"Status code is 200 - End session Successful\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});",
+                      "",
+                      "// 2.",
+                      "pm.test(\"Status should be 'ok'\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.status).to.eql(\"ok\");",
+                      "});",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{active_session_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "*/*"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"game_id\": \"game_uuid_12345\"\n}",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/end-session",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "end-session"
+                  ]
+                },
+                "description": "Ends the active game session associated with the provided game ID. Requires a valid Bearer Token."
+              },
+              "response": [
+                {
+                  "name": "Session ended successfully and resources were cleared.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "*/*"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"game_id\": \"game_uuid_12345\"\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/end-session",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "end-session"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "text",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "*/*"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"status\": \"ok\"\n}"
+                },
+                {
+                  "name": "Unauthorized  - The token is missing, invalid, or expired.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"game_id\": \"game_uuid_12345\"\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/end-session",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "end-session"
+                      ]
+                    }
+                  },
+                  "status": "Unauthorized",
+                  "code": 401,
+                  "_postman_previewlanguage": "text",
+                  "header": [],
+                  "cookie": [],
+                  "body": ""
+                }
+              ]
+            },
+            {
+              "name": "End session - Negative: missing token",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "// 1. Validate the HTTP Status Code",
+                      "// We expect a 401 Unauthorized because the token is missing",
+                      "pm.test(\"Status code is 401 - Unauthorized (Missing Token)\", function () {",
+                      "    pm.response.to.have.status(401);",
+                      "});",
+                      "",
+                      "// 2. Validate the Error Message Structure",
+                      "pm.test(\"Response contains an authentication error message\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "    ",
+                      "    // Check if 'error' key exists in the JSON response",
+                      "    pm.expect(jsonData.error).to.exist;",
+                      "    ",
+                      "    // Log the actual error message to the Postman Console for debugging",
+                      "    console.log(\"Security Message: \" + (jsonData.message || jsonData.error));",
+                      "});",
+                      "",
+                      "// 3. Data Integrity & Security Check",
+                      "// We ensure the response DOES NOT contain any game-related fields",
+                      "pm.test(\"Security: No game data fields are present in unauthorized response\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "    ",
+                      "    // List of keys that SHOULD NOT be there",
+                      "    const gameFields = ['scores', 'currentScore', 'activePlayer', 'dice', 'winner'];",
+                      "    ",
+                      "    // We check that none of these keys exist in the response",
+                      "    pm.expect(jsonData).to.not.have.any.keys(gameFields);",
+                      "    ",
+                      "    console.log(\"Data Security Verified: Game state is hidden.\");",
+                      "});",
+                      "",
+                      "// 4. Send user to login",
+                      "pm.test(\"Action status should be 'login'\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.action).to.eql(\"login\");",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "*/*"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"game_id\": \"game_uuid_12345\"\n}",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/end-session",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "end-session"
+                  ]
+                },
+                "description": "Ends the active game session associated with the provided game ID. Requires a valid Bearer Token."
+              },
+              "response": []
+            },
+            {
+              "name": "End session - Negative: wrong token",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "// 1. Verify if the server refuses us((401 Unauthorized))",
+                      "pm.test(\"Status code is 401 - Access Denied as expected\", function () {",
+                      "    pm.response.to.have.status(401);",
+                      "});",
+                      "",
+                      "// 2. Check if we receive a clear error message in JSON format",
+                      "pm.test(\"Response contains authentication error message\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "",
+                      "    pm.expect(jsonData.action && jsonData.error).to.be.a('string');",
+                      "    console.log(\"Error received: \" + (jsonData.message || jsonData.error));",
+                      "",
+                      "    pm.expect(jsonData.action).to.be.eql('login');",
+                      "});",
+                      "",
+                      "// 3.Check that we did NOT receive game data (the dice must not exist)",
+                      "pm.test(\"Dice value should not be present\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.dice).to.be.undefined;",
+                      "});",
+                      "",
+                      "// 4. Send user to login",
+                      "pm.test(\"Action status should be 'login'\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.action).to.eql(\"login\");",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "invalid_token_123",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "*/*"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"game_id\": \"game_uuid_12345\"\n}",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/end-session",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "end-session"
+                  ]
+                },
+                "description": "Ends the active game session associated with the provided game ID. Requires a valid Bearer Token."
+              },
+              "response": []
+            },
+            {
+              "name": "End session - Negative: expired token",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "const uniqueUser = \"player_\" + Date.now();",
+                      "",
+                      "pm.sendRequest({",
+                      "    url: pm.environment.get(\"baseUrl\") + '/api/start-session',",
+                      "    method: 'POST',",
+                      "    header: { 'Content-Type': 'application/json' },",
+                      "    body: {",
+                      "        mode: 'raw',",
+                      "        raw: JSON.stringify({ userId: uniqueUser })",
+                      "    }",
+                      "}, function (err, res) {",
+                      "    if (res.code === 200) {",
+                      "        const token = res.json().token;",
+                      "        // save token for next api calls",
+                      "        pm.collectionVariables.set(\"active_session_token\", token);",
+                      "        console.log(\"Pre-request Auth: New session created for \" + uniqueUser);",
+                      "",
+                      "        // step2: initialize game session",
+                      "        pm.sendRequest({",
+                      "            url: pm.environment.get(\"baseUrl\") + '/api/init',",
+                      "            method: 'POST',",
+                      "            header: { ",
+                      "                'Content-Type': 'application/json',",
+                      "                'Authorization': 'Bearer ' + token ",
+                      "            }",
+                      "        }, function (err, resInit) {",
+                      "            if (err || resInit.code !== 200) {",
+                      "                console.error(\"Step 2 (Init Game) FAILED\");",
+                      "            } else {",
+                      "                console.log(\"Step 2: Game Initialized.\");",
+                      "            }",
+                      "        });",
+                      "    } else {",
+                      "        console.error(\"Pre-request Auth FAILED!\");",
+                      "    }",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "// 1. Verify if the server refuses us((401 Unauthorized))",
+                      "pm.test(\"Status code is 401 - Token expired\", function () {",
+                      "    pm.response.to.have.status(401);",
+                      "});",
+                      "",
+                      "// 2. Check if we receive a clear error message in JSON format",
+                      "pm.test(\"Response contains authentication error message\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "",
+                      "    // Check if there is a 'message' or 'error' field that contains the word \"token\" or \"authorized\"",
+                      "    pm.expect(jsonData.message || jsonData.error).to.be.a('string');",
+                      "        console.log(\"Error received: \" + (jsonData.message || jsonData.error));",
+                      "});",
+                      "",
+                      "// 3.Check that we did NOT receive game data (the dice must not exist)",
+                      "pm.test(\"Dice value should not be present\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.dice).to.be.undefined;",
+                      "});",
+                      "",
+                      "// 4. Send user to login",
+                      "pm.test(\"Action status should be 'login'\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.action).to.eql(\"login\");",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "1eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoicGxheWVyXzE3NzQ1OTkwMDIyNjAiLCJnYW1lX2lkIjoiMWNiZjE3OGYtMTc3ZS00YTU3LWJkMWQtZGZkNThmOWVmZWNmIiwiZXhwIjoxNzc0Njg1NDAyfQ.Isw5OfJhuEu_wP0tm_60wAqzNkdiUAGyBS6edfeiYsI",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "*/*"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"game_id\": \"game_uuid_12345\"\n}",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/end-session",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "end-session"
+                  ]
+                },
+                "description": "Ends the active game session associated with the provided game ID. Requires a valid Bearer Token."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "hold",
+          "item": [
+            {
+              "name": "Hold Dice: - Positive: Score update",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const token = pm.collectionVariables.get(\"active_session_token\")",
+                      "",
+                      "// 1. Validate HTTP Status",
+                      "pm.test(\"Status code is 200 - Hold Successful\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});",
+                      "",
+                      "// 2. Validate Player Switch",
+                      "pm.test(\"Player switched after hold\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "",
+                      "    pm.expect(jsonData.activePlayer).to.eql(1);",
+                      "});",
+                      "",
+                      "// 3. Response Validation",
+                      "pm.test(\"Response contains all required game fields\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "    pm.expect(jsonData).to.have.all.keys('scores', 'dice', 'currentScore', 'activePlayer', 'winner', 'action');",
+                      "});",
+                      "",
+                      "// cleanup session",
+                      "pm.sendRequest({",
+                      "    url: pm.environment.get(\"baseUrl\") + '/api/end-session',",
+                      "    method: 'POST',",
+                      "    header: { ",
+                      "            'Authorization': 'Bearer ' + token,",
+                      "            'Content-Type': 'application/json' ",
+                      "        }",
+                      "}, function (err, res) {",
+                      "    if (err) {",
+                      "        console.error(\"Cleanup failed: \", err);",
+                      "    } else {",
+                      "        console.log(\"Session cleanup status: \" + res.status);",
+                      "    }",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "const uniqueUser = \"player_\" + Date.now();",
+                      "",
+                      "pm.sendRequest({",
+                      "    url: pm.environment.get(\"baseUrl\") + '/api/start-session',",
+                      "    method: 'POST',",
+                      "    header: { 'Content-Type': 'application/json' },",
+                      "    body: {",
+                      "        mode: 'raw',",
+                      "        raw: JSON.stringify({ userId: uniqueUser })",
+                      "    }",
+                      "}, function (err, res) {",
+                      "    if (res.code === 200) {",
+                      "        const token = res.json().token;",
+                      "        // save token for next api calls",
+                      "        pm.collectionVariables.set(\"active_session_token\", token);",
+                      "        console.log(\"Pre-request Auth: New session created for \" + uniqueUser);",
+                      "",
+                      "        // step2: initialize game session",
+                      "        pm.sendRequest({",
+                      "            url: pm.environment.get(\"baseUrl\") + '/api/init',",
+                      "            method: 'POST',",
+                      "            header: { ",
+                      "                'Content-Type': 'application/json',",
+                      "                'Authorization': 'Bearer ' + token ",
+                      "            }",
+                      "        }, function (err, resInit) {",
+                      "            if (err || resInit.code !== 200) {",
+                      "                console.error(\"Step 2 (Init Game) FAILED\");",
+                      "            } else {",
+                      "                console.log(\"Step 2: Game Initialized.\");",
+                      "            }",
+                      "        });",
+                      "    } else {",
+                      "        console.error(\"Pre-request Auth FAILED!\");",
+                      "    }",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{active_session_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "*/*"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"game_id\": \"game_550e8400\"\n}",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/hold",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "hold"
+                  ]
+                },
+                "description": "Adds the accumulated turn score to the player's total score and switches the turn to the next player. If the total score reaches 100, the player is declared the winner. Requires a valid Bearer Token.\n"
+              },
+              "response": [
+                {
+                  "name": "Score held successfully.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "*/*"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"game_id\": \"game_550e8400\"\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/hold",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "hold"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "text",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "*/*"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"global_score\": 45,\n  \"is_winner\": false,\n  \"next_player\": \"Player 2\"\n}"
+                },
+                {
+                  "name": "Bad Request - Action not allowed (e.g., no points to hold).",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"game_id\": \"game_550e8400\"\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/hold",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "hold"
+                      ]
+                    }
+                  },
+                  "status": "Bad Request",
+                  "code": 400,
+                  "_postman_previewlanguage": "text",
+                  "header": [],
+                  "cookie": [],
+                  "body": ""
+                },
+                {
+                  "name": "Unauthorized - Bearer token is missing or invalid.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"game_id\": \"game_550e8400\"\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/hold",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "hold"
+                      ]
+                    }
+                  },
+                  "status": "Unauthorized",
+                  "code": 401,
+                  "_postman_previewlanguage": "text",
+                  "header": [],
+                  "cookie": [],
+                  "body": ""
+                },
+                {
+                  "name": "Not Found - Game ID does not exist.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"game_id\": \"game_550e8400\"\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/hold",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "hold"
+                      ]
+                    }
+                  },
+                  "status": "Not Found",
+                  "code": 404,
+                  "_postman_previewlanguage": "text",
+                  "header": [],
+                  "cookie": [],
+                  "body": ""
+                }
+              ]
+            },
+            {
+              "name": "Hold Dice - Negative: wrong token",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "// 1. Verify if the server refuses us((401 Unauthorized))",
+                      "pm.test(\"Status code is 401 - Access Denied as expected\", function () {",
+                      "    pm.response.to.have.status(401);",
+                      "});",
+                      "",
+                      "// 2. Check if we receive a clear error message in JSON format",
+                      "pm.test(\"Response contains authentication error message\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "",
+                      "    pm.expect(jsonData.action && jsonData.error).to.be.a('string');",
+                      "    console.log(\"Error received: \" + (jsonData.message || jsonData.error));",
+                      "",
+                      "    pm.expect(jsonData.action).to.be.eql('login');",
+                      "});",
+                      "",
+                      "// 3.Check that we did NOT receive game data (the dice must not exist)",
+                      "pm.test(\"Dice value should not be present\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.dice).to.be.undefined;",
+                      "});",
+                      "",
+                      "// 4. Send user to login",
+                      "pm.test(\"Action status should be 'login'\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.action).to.eql(\"login\");",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "invalid_token_123",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "*/*"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"game_id\": \"game_550e8400\"\n}",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/hold",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "hold"
+                  ]
+                },
+                "description": "Adds the accumulated turn score to the player's total score and switches the turn to the next player. If the total score reaches 100, the player is declared the winner. Requires a valid Bearer Token.\n"
+              },
+              "response": []
+            },
+            {
+              "name": "Hold Dice - Negative: missing token",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "// 1. Validate the HTTP Status Code",
+                      "// We expect a 401 Unauthorized because the token is missing",
+                      "pm.test(\"Status code is 401 - Unauthorized (Missing Token)\", function () {",
+                      "    pm.response.to.have.status(401);",
+                      "});",
+                      "",
+                      "// 2. Validate the Error Message Structure",
+                      "pm.test(\"Response contains an authentication error message\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "    ",
+                      "    // Check if 'error' key exists in the JSON response",
+                      "    pm.expect(jsonData.error).to.exist;",
+                      "    ",
+                      "    // Log the actual error message to the Postman Console for debugging",
+                      "    console.log(\"Security Message: \" + (jsonData.message || jsonData.error));",
+                      "});",
+                      "",
+                      "// 3. Data Integrity & Security Check",
+                      "// We ensure the response DOES NOT contain any game-related fields",
+                      "pm.test(\"Security: No game data fields are present in unauthorized response\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "    ",
+                      "    // List of keys that SHOULD NOT be there",
+                      "    const gameFields = ['scores', 'currentScore', 'activePlayer', 'dice', 'winner'];",
+                      "    ",
+                      "    // We check that none of these keys exist in the response",
+                      "    pm.expect(jsonData).to.not.have.any.keys(gameFields);",
+                      "    ",
+                      "    // Verify expected keys",
+                      "    pm.expect(jsonData).to.have.all.keys(['error', 'action']);",
+                      "    ",
+                      "    console.log(\"Data Security Verified: Game state is hidden.\");",
+                      "});",
+                      "",
+                      "// 4. Send user to login",
+                      "pm.test(\"Action status should be 'login'\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.action).to.eql(\"login\");",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "*/*"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"game_id\": \"game_550e8400\"\n}",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/hold",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "hold"
+                  ]
+                },
+                "description": "Adds the accumulated turn score to the player's total score and switches the turn to the next player. If the total score reaches 100, the player is declared the winner. Requires a valid Bearer Token.\n"
+              },
+              "response": []
+            },
+            {
+              "name": "Hold Dice - Negative: expired token",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "// 1. Verify if the server refuses us((401 Unauthorized))",
+                      "pm.test(\"Status code is 401 - Token expired\", function () {",
+                      "    pm.response.to.have.status(401);",
+                      "});",
+                      "",
+                      "// 2. Check if we receive a clear error message in JSON format",
+                      "pm.test(\"Response contains authentication error message\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "",
+                      "    // Check if there is a 'message' or 'error' field that contains the word \"token\" or \"authorized\"",
+                      "    pm.expect(jsonData.message || jsonData.error).to.be.a('string');",
+                      "        console.log(\"Error received: \" + (jsonData.message || jsonData.error));",
+                      "});",
+                      "",
+                      "// 3.Check that we did NOT receive game data (the dice must not exist)",
+                      "pm.test(\"Dice value should not be present\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.dice).to.be.undefined;",
+                      "});",
+                      "",
+                      "// 4. Send user to login",
+                      "pm.test(\"Action status should be 'login'\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.action).to.eql(\"login\");",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "const uniqueUser = \"player_\" + Date.now();",
+                      "",
+                      "pm.sendRequest({",
+                      "    url: pm.environment.get(\"baseUrl\") + '/api/start-session',",
+                      "    method: 'POST',",
+                      "    header: { 'Content-Type': 'application/json' },",
+                      "    body: {",
+                      "        mode: 'raw',",
+                      "        raw: JSON.stringify({ userId: uniqueUser })",
+                      "    }",
+                      "}, function (err, res) {",
+                      "    if (res.code === 200) {",
+                      "        const token = res.json().token;",
+                      "        // save token for next api calls",
+                      "        pm.collectionVariables.set(\"active_session_token\", token);",
+                      "        console.log(\"Pre-request Auth: New session created for \" + uniqueUser);",
+                      "",
+                      "        // step2: initialize game session",
+                      "        pm.sendRequest({",
+                      "            url: pm.environment.get(\"baseUrl\") + '/api/init',",
+                      "            method: 'POST',",
+                      "            header: { ",
+                      "                'Content-Type': 'application/json',",
+                      "                'Authorization': 'Bearer ' + token ",
+                      "            }",
+                      "        }, function (err, resInit) {",
+                      "            if (err || resInit.code !== 200) {",
+                      "                console.error(\"Step 2 (Init Game) FAILED\");",
+                      "            } else {",
+                      "                console.log(\"Step 2: Game Initialized.\");",
+                      "            }",
+                      "        });",
+                      "    } else {",
+                      "        console.error(\"Pre-request Auth FAILED!\");",
+                      "    }",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "1eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoicGxheWVyXzE3NzQ1OTkwMDIyNjAiLCJnYW1lX2lkIjoiMWNiZjE3OGYtMTc3ZS00YTU3LWJkMWQtZGZkNThmOWVmZWNmIiwiZXhwIjoxNzc0Njg1NDAyfQ.Isw5OfJhuEu_wP0tm_60wAqzNkdiUAGyBS6edfeiYsI",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "*/*"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"game_id\": \"game_550e8400\"\n}",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/hold",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "hold"
+                  ]
+                },
+                "description": "Adds the accumulated turn score to the player's total score and switches the turn to the next player. If the total score reaches 100, the player is declared the winner. Requires a valid Bearer Token.\n"
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "roll",
+          "item": [
+            {
+              "name": "Roll Dice - Positive.",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "const uniqueUser = \"player_\" + Date.now();",
+                      "",
+                      "pm.sendRequest({",
+                      "    url: pm.environment.get(\"baseUrl\") + '/api/start-session',",
+                      "    method: 'POST',",
+                      "    header: { 'Content-Type': 'application/json' },",
+                      "    body: {",
+                      "        mode: 'raw',",
+                      "        raw: JSON.stringify({ userId: uniqueUser })",
+                      "    }",
+                      "}, function (err, res) {",
+                      "    if (res.code === 200) {",
+                      "        const token = res.json().token;",
+                      "        // save token for next api calls",
+                      "        pm.collectionVariables.set(\"active_session_token\", token);",
+                      "        console.log(\"Pre-request Auth: New session created for \" + uniqueUser);",
+                      "",
+                      "        // step2: initialize game session",
+                      "        pm.sendRequest({",
+                      "            url: pm.environment.get(\"baseUrl\") + '/api/init',",
+                      "            method: 'POST',",
+                      "            header: { ",
+                      "                'Content-Type': 'application/json',",
+                      "                'Authorization': 'Bearer ' + token ",
+                      "            }",
+                      "        }, function (err, resInit) {",
+                      "            if (err || resInit.code !== 200) {",
+                      "                console.error(\"Step 2 (Init Game) FAILED\");",
+                      "            } else {",
+                      "                console.log(\"Step 2: Game Initialized.\");",
+                      "            }",
+                      "        });",
+                      "    } else {",
+                      "        console.error(\"Pre-request Auth FAILED!\");",
+                      "    }",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const token = pm.collectionVariables.get(\"active_session_token\")",
+                      "",
+                      "// 1. Validating the HTTP Response",
+                      "pm.test(\"Status code is 200 - Roll Successful\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});",
+                      "",
+                      "// 2. Validating the Dice Range (1-6)",
+                      "pm.test(\"Dice value is within valid range (1-6)\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.dice).to.be.within(1, 6);",
+                      "    console.log(\"The player rolled a: \" + jsonData.dice);",
+                      "});",
+                      "",
+                      "// 3. Validating Game Logic for Dice = 1",
+                      "pm.test(\"Logic Check: If dice is 1, turn score must be 0 and turn must end\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "    ",
+                      "    if (jsonData.dice === 1) {",
+                      "        pm.expect(jsonData.currentScore).to.eql(0);",
+                      "        pm.expect(jsonData.activePlayer).to.eql(1);",
+                      "        console.log(\"Logic Verified: Player rolled a 1, score reset to 0.\");",
+                      "    } else {",
+                      "        pm.expect(jsonData.currentScore).to.be.above(0);",
+                      "        pm.expect(jsonData.activePlayer).to.eql(0);",
+                      "        console.log(\"Logic Verified: Score accumulated, turn continues.\");",
+                      "    }",
+                      "});",
+                      "",
+                      "// 4. Response validation",
+                      "pm.test(\"Response contains all required game fields\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "    pm.expect(jsonData).to.have.all.keys('scores', 'dice', 'currentScore', 'activePlayer', 'winner', 'action');",
+                      "});",
+                      "",
+                      "// cleanup session",
+                      "pm.sendRequest({",
+                      "    url: pm.environment.get(\"baseUrl\") + '/api/end-session',",
+                      "    method: 'POST',",
+                      "    header: { ",
+                      "            'Authorization': 'Bearer ' + token,",
+                      "            'Content-Type': 'application/json' ",
+                      "        }",
+                      "}, function (err, res) {",
+                      "    if (err) {",
+                      "        console.error(\"Cleanup failed: \", err);",
+                      "    } else {",
+                      "        console.log(\"Session cleanup status: \" + res.status);",
+                      "    }",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{active_session_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "*/*"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"game_id\": \"{{active_game_id}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/roll",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "roll"
+                  ]
+                },
+                "description": "Triggers a dice roll for the active player in the specified game.  If the dice is 1, the turn score is reset and the turn passes to the next player. Requires a valid Bearer Token.\n"
+              },
+              "response": [
+                {
+                  "name": "Dice rolled successfully.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "*/*"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"game_id\": \"game_550e8400\"\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/roll",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "roll"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "text",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "*/*"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"active_player\": \"Player 1\",\n  \"current_turn_score\": 12,\n  \"dice_value\": 4,\n  \"is_turn_over\": false\n}"
+                },
+                {
+                  "name": "Bad Request - Game is already finished or invalid state.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"game_id\": \"game_550e8400\"\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/roll",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "roll"
+                      ]
+                    }
+                  },
+                  "status": "Bad Request",
+                  "code": 400,
+                  "_postman_previewlanguage": "text",
+                  "header": [],
+                  "cookie": [],
+                  "body": ""
+                },
+                {
+                  "name": "Unauthorized - Bearer token is missing or invalid.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"game_id\": \"game_550e8400\"\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/roll",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "roll"
+                      ]
+                    }
+                  },
+                  "status": "Unauthorized",
+                  "code": 401,
+                  "_postman_previewlanguage": "text",
+                  "header": [],
+                  "cookie": [],
+                  "body": ""
+                },
+                {
+                  "name": "Not Found - Game ID does not exist.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"game_id\": \"game_550e8400\"\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/roll",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "roll"
+                      ]
+                    }
+                  },
+                  "status": "Not Found",
+                  "code": 404,
+                  "_postman_previewlanguage": "text",
+                  "header": [],
+                  "cookie": [],
+                  "body": ""
+                }
+              ]
+            },
+            {
+              "name": "Roll Dice - Negative: wrong token",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "// 1. Verify if the server refuses us((401 Unauthorized))",
+                      "pm.test(\"Status code is 401 - Access Denied as expected\", function () {",
+                      "    pm.response.to.have.status(401);",
+                      "});",
+                      "",
+                      "// 2. Check if we receive a clear error message in JSON format",
+                      "pm.test(\"Response contains authentication error message\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "",
+                      "    pm.expect(jsonData.action && jsonData.error).to.be.a('string');",
+                      "    console.log(\"Error received: \" + (jsonData.message || jsonData.error));",
+                      "",
+                      "    pm.expect(jsonData.action).to.be.eql('login');",
+                      "});",
+                      "",
+                      "// 3.Check that we did NOT receive game data (the dice must not exist)",
+                      "pm.test(\"Dice value should not be present\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.dice).to.be.undefined;",
+                      "});",
+                      "",
+                      "// 4. Send user to login",
+                      "pm.test(\"Action status should be 'login'\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.action).to.eql(\"login\");",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "invalid_token_123",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "*/*"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"game_id\": \"{{active_game_id}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/roll",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "roll"
+                  ]
+                },
+                "description": "Triggers a dice roll for the active player in the specified game.  If the dice is 1, the turn score is reset and the turn passes to the next player. Requires a valid Bearer Token.\n"
+              },
+              "response": []
+            },
+            {
+              "name": "Roll Dice - Negative: missing token",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "// 1. Validate the HTTP Status Code",
+                      "// We expect a 401 Unauthorized because the token is missing",
+                      "pm.test(\"Status code is 401 - Unauthorized (Missing Token)\", function () {",
+                      "    pm.response.to.have.status(401);",
+                      "});",
+                      "",
+                      "// 2. Validate the Error Message Structure",
+                      "pm.test(\"Response contains an authentication error message\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "    ",
+                      "    // Check if 'error' key exists in the JSON response",
+                      "    pm.expect(jsonData.error).to.exist;",
+                      "    ",
+                      "    // Log the actual error message to the Postman Console for debugging",
+                      "    console.log(\"Security Message: \" + (jsonData.message || jsonData.error));",
+                      "});",
+                      "",
+                      "// 3. Data Integrity & Security Check",
+                      "// We ensure the response DOES NOT contain any game-related fields",
+                      "pm.test(\"Security: No game data fields are present in unauthorized response\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "    ",
+                      "    // List of keys that SHOULD NOT be there",
+                      "    const gameFields = ['scores', 'currentScore', 'activePlayer', 'dice', 'winner'];",
+                      "    ",
+                      "    // We check that none of these keys exist in the response",
+                      "    pm.expect(jsonData).to.not.have.any.keys(gameFields);",
+                      "    ",
+                      "    // Verify expected keys",
+                      "    pm.expect(jsonData).to.have.all.keys(['error', 'action']);",
+                      "    ",
+                      "    console.log(\"Data Security Verified: Game state is hidden.\");",
+                      "});",
+                      "",
+                      "// 4. Send user to login",
+                      "pm.test(\"Action status should be 'login'\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.action).to.eql(\"login\");",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "*/*"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"game_id\": \"{{active_game_id}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/roll",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "roll"
+                  ]
+                },
+                "description": "Triggers a dice roll for the active player in the specified game.  If the dice is 1, the turn score is reset and the turn passes to the next player. Requires a valid Bearer Token.\n"
+              },
+              "response": []
+            },
+            {
+              "name": "Roll Dice - Negative: expired token",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "const uniqueUser = \"player_\" + Date.now();",
+                      "",
+                      "pm.sendRequest({",
+                      "    url: pm.environment.get(\"baseUrl\") + '/api/start-session',",
+                      "    method: 'POST',",
+                      "    header: { 'Content-Type': 'application/json' },",
+                      "    body: {",
+                      "        mode: 'raw',",
+                      "        raw: JSON.stringify({ userId: uniqueUser })",
+                      "    }",
+                      "}, function (err, res) {",
+                      "    if (res.code === 200) {",
+                      "        const token = res.json().token;",
+                      "        // save token for next api calls",
+                      "        pm.collectionVariables.set(\"active_session_token\", token);",
+                      "        console.log(\"Pre-request Auth: New session created for \" + uniqueUser);",
+                      "",
+                      "        // step2: initialize game session",
+                      "        pm.sendRequest({",
+                      "            url: pm.environment.get(\"baseUrl\") + '/api/init',",
+                      "            method: 'POST',",
+                      "            header: { ",
+                      "                'Content-Type': 'application/json',",
+                      "                'Authorization': 'Bearer ' + token ",
+                      "            }",
+                      "        }, function (err, resInit) {",
+                      "            if (err || resInit.code !== 200) {",
+                      "                console.error(\"Step 2 (Init Game) FAILED\");",
+                      "            } else {",
+                      "                console.log(\"Step 2: Game Initialized.\");",
+                      "            }",
+                      "        });",
+                      "    } else {",
+                      "        console.error(\"Pre-request Auth FAILED!\");",
+                      "    }",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "// 1. Verify if the server refuses us((401 Unauthorized))",
+                      "pm.test(\"Status code is 401 - Token expired\", function () {",
+                      "    pm.response.to.have.status(401);",
+                      "});",
+                      "",
+                      "// 2. Check if we receive a clear error message in JSON format",
+                      "pm.test(\"Response contains authentication error message\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "",
+                      "    // Check if there is a 'message' or 'error' field that contains the word \"token\" or \"authorized\"",
+                      "    pm.expect(jsonData.message || jsonData.error).to.be.a('string');",
+                      "        console.log(\"Error received: \" + (jsonData.message || jsonData.error));",
+                      "});",
+                      "",
+                      "// 3.Check that we did NOT receive game data (the dice must not exist)",
+                      "pm.test(\"Dice value should not be present\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.dice).to.be.undefined;",
+                      "});",
+                      "",
+                      "// 4. Send user to login page",
+                      "pm.test(\"Check that the action required from de UI is login\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.action).to.eql(\"login\");",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "1eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoicGxheWVyXzE3NzQ1OTkwMDIyNjAiLCJnYW1lX2lkIjoiMWNiZjE3OGYtMTc3ZS00YTU3LWJkMWQtZGZkNThmOWVmZWNmIiwiZXhwIjoxNzc0Njg1NDAyfQ.Isw5OfJhuEu_wP0tm_60wAqzNkdiUAGyBS6edfeiYsI",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "*/*"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"game_id\": \"{{active_game_id}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/roll",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "roll"
+                  ]
+                },
+                "description": "Triggers a dice roll for the active player in the specified game.  If the dice is 1, the turn score is reset and the turn passes to the next player. Requires a valid Bearer Token.\n"
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "start-session",
+          "item": [
+            {
+              "name": "User login/registration and session initialization.",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const uniqueUser = \"player_99\";",
+                      "let token = null",
+                      "",
+                      "// 1. Validating the HTTP Response",
+                      "pm.test(\"Status code is 200 - Start session success\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});",
+                      "",
+                      "// 2. Validating the Dice Range (1-6)",
+                      "pm.test(\"Check token\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "    token = jsonData.token;",
+                      "});",
+                      "",
+                      "pm.sendRequest({",
+                      "    url: pm.environment.get(\"baseUrl\") + '/api/end-session',",
+                      "    method: 'POST',",
+                      "    header: { ",
+                      "            'Authorization': 'Bearer ' + token,",
+                      "            'Content-Type': 'application/json' ",
+                      "        }",
+                      "}, function (err, res) {",
+                      "    if (err) {",
+                      "        console.error(\"Cleanup failed: \", err);",
+                      "    } else {",
+                      "        console.log(\"Session cleanup status: \" + res.status);",
+                      "    }",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "*/*"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"userId\": \"player_99\"\n}",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/start-session",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "start-session"
+                  ]
+                },
+                "description": "Registers a new user or logs in an existing one, returning a security token."
+              },
+              "response": [
+                {
+                  "name": "Session started successfully.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "*/*"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"userId\": \"player_99\"\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/start-session",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "start-session"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "text",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "*/*"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"token\": \"abc123securitytoken\"\n}"
+                },
+                {
+                  "name": "Bad Request - Missing JSON body or userId",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "*/*"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"userId\": \"player_99\"\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/start-session",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "start-session"
+                      ]
+                    }
+                  },
+                  "status": "Bad Request",
+                  "code": 400,
+                  "_postman_previewlanguage": "text",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "*/*"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"error\": \"User ID is required!\"\n}"
+                },
+                {
+                  "name": "Conflict - User ID already in use.",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "*/*"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"userId\": \"player_99\"\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/start-session",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "start-session"
+                      ]
+                    }
+                  },
+                  "status": "Bad Request",
+                  "code": 400,
+                  "_postman_previewlanguage": "text",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "*/*"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"error\": \"User ID is required!\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Duplicate user",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const token = pm.collectionVariables.get(\"active_session_token\")",
+                      "",
+                      "pm.test(\"Security Check: Block duplicate active sessions\", function () {",
+                      "    pm.response.to.have.status(409);",
+                      "});",
+                      "",
+                      "pm.test(\"Check error message for duplicates\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "    // Ne așteptăm ca în răspuns să existe un mesaj de eroare, nu un token",
+                      "    pm.expect(jsonData).to.have.property('error');",
+                      "    pm.expect(jsonData.error).to.eql(\"User ID already in use!\")",
+                      "    pm.expect(jsonData).to.not.have.property('token');",
+                      "});",
+                      "",
+                      "pm.sendRequest({",
+                      "    url: pm.environment.get(\"baseUrl\") + '/api/end-session',",
+                      "    method: 'POST',",
+                      "    header: { ",
+                      "            'Authorization': 'Bearer ' + token,",
+                      "            'Content-Type': 'application/json' ",
+                      "        }",
+                      "}, function (err, res) {",
+                      "    if (err) {",
+                      "        console.error(\"Cleanup failed: \", err);",
+                      "    } else {",
+                      "        console.log(\"Session cleanup status: \" + res.status);",
+                      "    }",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "const uniqueUser = \"player_constant_1\";",
+                      "",
+                      "pm.sendRequest({",
+                      "    url: pm.environment.get(\"baseUrl\") + '/api/start-session',",
+                      "    method: 'POST',",
+                      "    header: { 'Content-Type': 'application/json' },",
+                      "    body: {",
+                      "        mode: 'raw',",
+                      "        raw: JSON.stringify({ userId: uniqueUser })",
+                      "    }",
+                      "}, function (err, res) {",
+                      "    if (res.code === 200) {",
+                      "        const token = res.json().token;",
+                      "        // save token for next api calls",
+                      "        pm.collectionVariables.set(\"active_session_token\", token);",
+                      "        console.log(\"Pre-request Auth: New session created for \" + uniqueUser);",
+                      "    }",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "*/*"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"userId\": \"player_constant_1\"\n}",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/start-session",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "start-session"
+                  ]
+                },
+                "description": "Registers a new user or logs in an existing one, returning a security token."
+              },
+              "response": []
+            },
+            {
+              "name": "Start Session - Missing user id parameter",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Checking response code when no user id is provided\", function () {",
+                      "    pm.response.to.have.status(400);",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "*/*"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/start-session",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "start-session"
+                  ]
+                },
+                "description": "Registers a new user or logs in an existing one, returning a security token."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "status",
+          "item": [
+            {
+              "name": "Get Status - Positive",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "*/*"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/status",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "status"
+                  ]
+                },
+                "description": "Returns the current status of the API to verify if the service is up and running."
+              },
+              "response": [
+                {
+                  "name": "Service is operational.",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "*/*"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/status",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "status"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "text",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "*/*"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"message\": \"It Works!\"\n}"
+                },
+                {
+                  "name": "Service Unavailable - The server is down or undergoing maintenance.",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/status",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "status"
+                      ]
+                    }
+                  },
+                  "status": "Service Unavailable",
+                  "code": 503,
+                  "_postman_previewlanguage": "text",
+                  "header": [],
+                  "cookie": [],
+                  "body": ""
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "init",
+          "item": [
+            {
+              "name": "Initialize game context/state - Positive",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "const uniqueUser = \"player_\" + Date.now();",
+                      "",
+                      "pm.sendRequest({",
+                      "    url: pm.environment.get(\"baseUrl\") + '/api/start-session',",
+                      "    method: 'POST',",
+                      "    header: { 'Content-Type': 'application/json' },",
+                      "    body: {",
+                      "        mode: 'raw',",
+                      "        raw: JSON.stringify({ userId: uniqueUser })",
+                      "    }",
+                      "}, function (err, res) {",
+                      "    if (res.code === 200) {",
+                      "        const token = res.json().token;",
+                      "        // save token for next api calls",
+                      "        pm.collectionVariables.set(\"active_session_token\", token);",
+                      "        console.log(\"Pre-request Auth: New session created for \" + uniqueUser);",
+                      "    }",
+                      "})"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const token = pm.collectionVariables.get(\"active_session_token\")",
+                      "",
+                      "// 1. Validate HTTP Status",
+                      "pm.test(\"Status code is 200 - Init Successful\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});",
+                      "",
+                      "// 2. Response Validation",
+                      "pm.test(\"Response contains all required game state/context\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "    pm.expect(jsonData).to.have.all.keys('scores', 'dice', 'currentScore', 'activePlayer', 'winner', 'action');",
+                      "});",
+                      "",
+                      "// 3.Check that action = 'new'",
+                      "pm.test(\"Dice value should not be present\", function () {    ",
+                      "    const jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.action).to.be.eql(\"new\");",
+                      "});",
+                      "",
+                      "// cleanup session",
+                      "pm.sendRequest({",
+                      "    url: pm.environment.get(\"baseUrl\") + '/api/end-session',",
+                      "    method: 'POST',",
+                      "    header: { ",
+                      "            'Authorization': 'Bearer ' + token,",
+                      "            'Content-Type': 'application/json' ",
+                      "        }",
+                      "}, function (err, res) {",
+                      "    if (err) {",
+                      "        console.error(\"Cleanup failed: \", err);",
+                      "    } else {",
+                      "        console.log(\"Session cleanup status: \" + res.status);",
+                      "    }",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{active_session_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"game_id\": \"game_550e8400\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/init",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "init"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Initialize game - Negative: wrong token",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "// 1. Verify if the server refuses us((401 Unauthorized))",
+                      "pm.test(\"Status code is 401 - Access Denied as expected\", function () {",
+                      "    pm.response.to.have.status(401);",
+                      "});",
+                      "",
+                      "// 2. Check if we receive a clear error message in JSON format",
+                      "pm.test(\"Response contains authentication error message\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "",
+                      "    pm.expect(jsonData.action && jsonData.error).to.be.a('string');",
+                      "    console.log(\"Error received: \" + (jsonData.message || jsonData.error));",
+                      "",
+                      "    pm.expect(jsonData.action).to.be.eql('login');",
+                      "});",
+                      "",
+                      "// 3.Check that we did NOT receive game data (the dice must not exist)",
+                      "pm.test(\"Dice value should not be present\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.dice).to.be.undefined;",
+                      "});",
+                      "",
+                      "// 4. Send user to login",
+                      "pm.test(\"Action status should be 'login'\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.action).to.eql(\"login\");",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "invalid_token_123",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "*/*"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"game_id\": \"game_550e8400\"\n}",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/hold",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "hold"
+                  ]
+                },
+                "description": "Adds the accumulated turn score to the player's total score and switches the turn to the next player. If the total score reaches 100, the player is declared the winner. Requires a valid Bearer Token.\n"
+              },
+              "response": []
+            },
+            {
+              "name": "Initialize game - Negative: missing token",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "// 1. Validate the HTTP Status Code",
+                      "// We expect a 401 Unauthorized because the token is missing",
+                      "pm.test(\"Status code is 401 - Unauthorized (Missing Token)\", function () {",
+                      "    pm.response.to.have.status(401);",
+                      "});",
+                      "",
+                      "// 2. Validate the Error Message Structure",
+                      "pm.test(\"Response contains an authentication error message\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "    ",
+                      "    // Check if 'error' key exists in the JSON response",
+                      "    pm.expect(jsonData.error).to.exist;",
+                      "    ",
+                      "    // Log the actual error message to the Postman Console for debugging",
+                      "    console.log(\"Security Message: \" + (jsonData.message || jsonData.error));",
+                      "});",
+                      "",
+                      "// 3. Data Integrity & Security Check",
+                      "// We ensure the response DOES NOT contain any game-related fields",
+                      "pm.test(\"Security: No game data fields are present in unauthorized response\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "    ",
+                      "    // List of keys that SHOULD NOT be there",
+                      "    const gameFields = ['scores', 'currentScore', 'activePlayer', 'dice', 'winner'];",
+                      "    ",
+                      "    // We check that none of these keys exist in the response",
+                      "    pm.expect(jsonData).to.not.have.any.keys(gameFields);",
+                      "    ",
+                      "    // Verify expected keys",
+                      "    pm.expect(jsonData).to.have.all.keys(['error', 'action']);",
+                      "    ",
+                      "    console.log(\"Data Security Verified: Game state is hidden.\");",
+                      "});",
+                      "",
+                      "// 4. Send user to login",
+                      "pm.test(\"Action status should be 'login'\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.action).to.eql(\"login\");",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "*/*"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"game_id\": \"game_550e8400\"\n}",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/hold",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "hold"
+                  ]
+                },
+                "description": "Adds the accumulated turn score to the player's total score and switches the turn to the next player. If the total score reaches 100, the player is declared the winner. Requires a valid Bearer Token.\n"
+              },
+              "response": []
+            },
+            {
+              "name": "Initialize game - Negative: expired token",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "// 1. Verify if the server refuses us((401 Unauthorized))",
+                      "pm.test(\"Status code is 401 - Token expired\", function () {",
+                      "    pm.response.to.have.status(401);",
+                      "});",
+                      "",
+                      "// 2. Check if we receive a clear error message in JSON format",
+                      "pm.test(\"Response contains authentication error message\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "",
+                      "    // Check if there is a 'message' or 'error' field that contains the word \"token\" or \"authorized\"",
+                      "    pm.expect(jsonData.message || jsonData.error).to.be.a('string');",
+                      "        console.log(\"Error received: \" + (jsonData.message || jsonData.error));",
+                      "});",
+                      "",
+                      "// 3.Check that we did NOT receive game data (the dice must not exist)",
+                      "pm.test(\"Dice value should not be present\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.dice).to.be.undefined;",
+                      "});",
+                      "",
+                      "// 4. Send user to login",
+                      "pm.test(\"Action status should be 'login'\", function () {",
+                      "    const jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.action).to.eql(\"login\");",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "const uniqueUser = \"player_\" + Date.now();",
+                      "",
+                      "pm.sendRequest({",
+                      "    url: pm.environment.get(\"baseUrl\") + '/api/start-session',",
+                      "    method: 'POST',",
+                      "    header: { 'Content-Type': 'application/json' },",
+                      "    body: {",
+                      "        mode: 'raw',",
+                      "        raw: JSON.stringify({ userId: uniqueUser })",
+                      "    }",
+                      "}, function (err, res) {",
+                      "    if (res.code === 200) {",
+                      "        const token = res.json().token;",
+                      "        // save token for next api calls",
+                      "        pm.collectionVariables.set(\"active_session_token\", token);",
+                      "        console.log(\"Pre-request Auth: New session created for \" + uniqueUser);",
+                      "",
+                      "        // step2: initialize game session",
+                      "        pm.sendRequest({",
+                      "            url: pm.environment.get(\"baseUrl\") + '/api/init',",
+                      "            method: 'POST',",
+                      "            header: { ",
+                      "                'Content-Type': 'application/json',",
+                      "                'Authorization': 'Bearer ' + token ",
+                      "            }",
+                      "        }, function (err, resInit) {",
+                      "            if (err || resInit.code !== 200) {",
+                      "                console.error(\"Step 2 (Init Game) FAILED\");",
+                      "            } else {",
+                      "                console.log(\"Step 2: Game Initialized.\");",
+                      "            }",
+                      "        });",
+                      "    } else {",
+                      "        console.error(\"Pre-request Auth FAILED!\");",
+                      "    }",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "1eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoicGxheWVyXzE3NzQ1OTkwMDIyNjAiLCJnYW1lX2lkIjoiMWNiZjE3OGYtMTc3ZS00YTU3LWJkMWQtZGZkNThmOWVmZWNmIiwiZXhwIjoxNzc0Njg1NDAyfQ.Isw5OfJhuEu_wP0tm_60wAqzNkdiUAGyBS6edfeiYsI",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "*/*"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"game_id\": \"game_550e8400\"\n}",
+                  "options": {
+                    "raw": {
+                      "headerFamily": "json",
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/hold",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "hold"
+                  ]
+                },
+                "description": "Adds the accumulated turn score to the player's total score and switches the turn to the next player. If the total score reaches 100, the player is declared the winner. Requires a valid Bearer Token.\n"
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "/"
+    },
+    {
+      "key": "active_session_token",
+      "value": ""
+    },
+    {
+      "key": "duplicate_user_id",
+      "value": ""
+    }
+  ]
+}
