@@ -18,7 +18,7 @@ def require_auth(f):
     def decorated(*args, **kwargs):
         token = request.headers.get("Authorization", "").removeprefix("Bearer ").strip()
         if not token:
-            return jsonify({"error": "Missing auth token!"}), 401
+            return jsonify({"error": "Missing auth token!", "action": "login"}), 401
         try:
             game_id = auth.verify_token(token)
         except jwt.ExpiredSignatureError:
