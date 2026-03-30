@@ -19,3 +19,13 @@ If yes: That player is declared the Winner, and the game ends.
 If no: The turn passes to the opponent.
 
 In my version of the game, I used JavaScript to handle the user interface and animations, while Python acts as the 'referee' in the background to calculate the scores and ensure the game rules are followed fairly.
+
+## 🧪 Quality Assurance & Automation
+
+This project follows a rigorous testing workflow to ensure API stability and game logic integrity.
+
+- **Automated Suite:** Postman collections with JavaScript validations.
+- **CI/CD:** Integrated via GitHub Actions and Newman.
+- **Coverage:** Positive, Negative, and Security (Auth) testing.
+
+👉 **[View the Detailed Testing Strategy & Workflow Documentation](./tests/postman/testing-workflow.md)**
