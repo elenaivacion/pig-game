@@ -485,42 +485,7 @@
                   "listen": "prerequest",
                   "script": {
                     "exec": [
-                      "const uniqueUser = \"player_\" + Date.now();",
-                      "",
-                      "pm.sendRequest({",
-                      "    url: pm.environment.get(\"baseUrl\") + '/api/start-session',",
-                      "    method: 'POST',",
-                      "    header: { 'Content-Type': 'application/json' },",
-                      "    body: {",
-                      "        mode: 'raw',",
-                      "        raw: JSON.stringify({ userId: uniqueUser })",
-                      "    }",
-                      "}, function (err, res) {",
-                      "    if (res.code === 200) {",
-                      "        const token = res.json().token;",
-                      "        // save token for next api calls",
-                      "        pm.collectionVariables.set(\"active_session_token\", token);",
-                      "        console.log(\"Pre-request Auth: New session created for \" + uniqueUser);",
-                      "",
-                      "        // step2: initialize game session",
-                      "        pm.sendRequest({",
-                      "            url: pm.environment.get(\"baseUrl\") + '/api/init',",
-                      "            method: 'POST',",
-                      "            header: { ",
-                      "                'Content-Type': 'application/json',",
-                      "                'Authorization': 'Bearer ' + token ",
-                      "            }",
-                      "        }, function (err, resInit) {",
-                      "            if (err || resInit.code !== 200) {",
-                      "                console.error(\"Step 2 (Init Game) FAILED\");",
-                      "            } else {",
-                      "                console.log(\"Step 2: Game Initialized.\");",
-                      "            }",
-                      "        });",
-                      "    } else {",
-                      "        console.error(\"Pre-request Auth FAILED!\");",
-                      "    }",
-                      "});"
+                      ""
                     ],
                     "type": "text/javascript",
                     "packages": {},
@@ -1159,42 +1124,7 @@
                   "listen": "prerequest",
                   "script": {
                     "exec": [
-                      "const uniqueUser = \"player_\" + Date.now();",
-                      "",
-                      "pm.sendRequest({",
-                      "    url: pm.environment.get(\"baseUrl\") + '/api/start-session',",
-                      "    method: 'POST',",
-                      "    header: { 'Content-Type': 'application/json' },",
-                      "    body: {",
-                      "        mode: 'raw',",
-                      "        raw: JSON.stringify({ userId: uniqueUser })",
-                      "    }",
-                      "}, function (err, res) {",
-                      "    if (res.code === 200) {",
-                      "        const token = res.json().token;",
-                      "        // save token for next api calls",
-                      "        pm.collectionVariables.set(\"active_session_token\", token);",
-                      "        console.log(\"Pre-request Auth: New session created for \" + uniqueUser);",
-                      "",
-                      "        // step2: initialize game session",
-                      "        pm.sendRequest({",
-                      "            url: pm.environment.get(\"baseUrl\") + '/api/init',",
-                      "            method: 'POST',",
-                      "            header: { ",
-                      "                'Content-Type': 'application/json',",
-                      "                'Authorization': 'Bearer ' + token ",
-                      "            }",
-                      "        }, function (err, resInit) {",
-                      "            if (err || resInit.code !== 200) {",
-                      "                console.error(\"Step 2 (Init Game) FAILED\");",
-                      "            } else {",
-                      "                console.log(\"Step 2: Game Initialized.\");",
-                      "            }",
-                      "        });",
-                      "    } else {",
-                      "        console.error(\"Pre-request Auth FAILED!\");",
-                      "    }",
-                      "});"
+                      ""
                     ],
                     "type": "text/javascript",
                     "packages": {},
@@ -1778,42 +1708,7 @@
                   "listen": "prerequest",
                   "script": {
                     "exec": [
-                      "const uniqueUser = \"player_\" + Date.now();",
-                      "",
-                      "pm.sendRequest({",
-                      "    url: pm.environment.get(\"baseUrl\") + '/api/start-session',",
-                      "    method: 'POST',",
-                      "    header: { 'Content-Type': 'application/json' },",
-                      "    body: {",
-                      "        mode: 'raw',",
-                      "        raw: JSON.stringify({ userId: uniqueUser })",
-                      "    }",
-                      "}, function (err, res) {",
-                      "    if (res.code === 200) {",
-                      "        const token = res.json().token;",
-                      "        // save token for next api calls",
-                      "        pm.collectionVariables.set(\"active_session_token\", token);",
-                      "        console.log(\"Pre-request Auth: New session created for \" + uniqueUser);",
-                      "",
-                      "        // step2: initialize game session",
-                      "        pm.sendRequest({",
-                      "            url: pm.environment.get(\"baseUrl\") + '/api/init',",
-                      "            method: 'POST',",
-                      "            header: { ",
-                      "                'Content-Type': 'application/json',",
-                      "                'Authorization': 'Bearer ' + token ",
-                      "            }",
-                      "        }, function (err, resInit) {",
-                      "            if (err || resInit.code !== 200) {",
-                      "                console.error(\"Step 2 (Init Game) FAILED\");",
-                      "            } else {",
-                      "                console.log(\"Step 2: Game Initialized.\");",
-                      "            }",
-                      "        });",
-                      "    } else {",
-                      "        console.error(\"Pre-request Auth FAILED!\");",
-                      "    }",
-                      "});"
+                      ""
                     ],
                     "type": "text/javascript",
                     "packages": {},
@@ -2572,13 +2467,13 @@
                   }
                 },
                 "url": {
-                  "raw": "{{baseUrl}}/api/hold",
+                  "raw": "{{baseUrl}}/api/init",
                   "host": [
                     "{{baseUrl}}"
                   ],
                   "path": [
                     "api",
-                    "hold"
+                    "init"
                   ]
                 },
                 "description": "Adds the accumulated turn score to the player's total score and switches the turn to the next player. If the total score reaches 100, the player is declared the winner. Requires a valid Bearer Token.\n"
@@ -2675,13 +2570,13 @@
                   }
                 },
                 "url": {
-                  "raw": "{{baseUrl}}/api/hold",
+                  "raw": "{{baseUrl}}/api/init",
                   "host": [
                     "{{baseUrl}}"
                   ],
                   "path": [
                     "api",
-                    "hold"
+                    "init"
                   ]
                 },
                 "description": "Adds the accumulated turn score to the player's total score and switches the turn to the next player. If the total score reaches 100, the player is declared the winner. Requires a valid Bearer Token.\n"
@@ -2730,42 +2625,7 @@
                   "listen": "prerequest",
                   "script": {
                     "exec": [
-                      "const uniqueUser = \"player_\" + Date.now();",
-                      "",
-                      "pm.sendRequest({",
-                      "    url: pm.environment.get(\"baseUrl\") + '/api/start-session',",
-                      "    method: 'POST',",
-                      "    header: { 'Content-Type': 'application/json' },",
-                      "    body: {",
-                      "        mode: 'raw',",
-                      "        raw: JSON.stringify({ userId: uniqueUser })",
-                      "    }",
-                      "}, function (err, res) {",
-                      "    if (res.code === 200) {",
-                      "        const token = res.json().token;",
-                      "        // save token for next api calls",
-                      "        pm.collectionVariables.set(\"active_session_token\", token);",
-                      "        console.log(\"Pre-request Auth: New session created for \" + uniqueUser);",
-                      "",
-                      "        // step2: initialize game session",
-                      "        pm.sendRequest({",
-                      "            url: pm.environment.get(\"baseUrl\") + '/api/init',",
-                      "            method: 'POST',",
-                      "            header: { ",
-                      "                'Content-Type': 'application/json',",
-                      "                'Authorization': 'Bearer ' + token ",
-                      "            }",
-                      "        }, function (err, resInit) {",
-                      "            if (err || resInit.code !== 200) {",
-                      "                console.error(\"Step 2 (Init Game) FAILED\");",
-                      "            } else {",
-                      "                console.log(\"Step 2: Game Initialized.\");",
-                      "            }",
-                      "        });",
-                      "    } else {",
-                      "        console.error(\"Pre-request Auth FAILED!\");",
-                      "    }",
-                      "});"
+                      ""
                     ],
                     "type": "text/javascript",
                     "packages": {},
@@ -2806,13 +2666,13 @@
                   }
                 },
                 "url": {
-                  "raw": "{{baseUrl}}/api/hold",
+                  "raw": "{{baseUrl}}/api/init",
                   "host": [
                     "{{baseUrl}}"
                   ],
                   "path": [
                     "api",
-                    "hold"
+                    "init"
                   ]
                 },
                 "description": "Adds the accumulated turn score to the player's total score and switches the turn to the next player. If the total score reaches 100, the player is declared the winner. Requires a valid Bearer Token.\n"
