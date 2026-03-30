@@ -22,7 +22,7 @@ def require_auth(f):
         try:
             game_id = auth.verify_token(token)
         except jwt.ExpiredSignatureError:
-            return jsonify({"error": "Expired token!", "action": "login"}), 401
+            return jsonify({"error": "Expired token!", "action": "login"})), 401
         except jwt.InvalidTokenError:
             return jsonify({"error": "Invalid token!", "action": "login"}), 401
         return f(game_id, *args, **kwargs)
